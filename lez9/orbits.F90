@@ -1,0 +1,30 @@
+PROGRAM orbit
+IMPLICIT NONE
+
+!DECLARATION
+INTEGER, PARAMETER :: P = 1200
+REAL, PARAMETER :: PI = 3.14
+INTEGER :: Theta, i
+REAL :: R, Epsilon=0
+
+!EXECUTION
+ 
+outer :DO i=0, 2, 1 !LOOP THREE TIMES 
+WRITE(*,90)'Epsilon:', Epsilon 
+WRITE(*,'(A)') 'Theta(°)    Raggio(Km)'
+  inner: DO Theta=0, 360, 1 !LOOP OVER THETA
+    R = P/(1-(Epsilon)*cos(2*PI*Theta/360)) 
+    WRITE(*,100) Theta, R/1000     
+  END DO inner   
+  Epsilon = Epsilon + 0.25 !INCREMENT 
+  WRITE(*,'(A)') '------------------------------------'
+  WRITE(*,*) NEW_LINE('A')
+   
+END DO outer
+
+!FORMAT
+90 FORMAT(A10, 1X, F4.2)
+100 FORMAT(I3, 7X, F7.2)
+
+STOP
+END PROGRAM orbit

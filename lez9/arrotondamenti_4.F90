@@ -1,0 +1,21 @@
+PROGRAM arrotondamenti_4
+IMPLICIT NONE
+
+!DECLARATIONS
+INTEGER, PARAMETER :: DBL = SELECTED_REAL_KIND(p=13)
+INTEGER :: k
+REAL(KIND=DBL) :: x, y, r
+
+!EXECUTION
+WRITE(*,*) DBL
+x=0.0_DBL
+y=0.0_DBL
+r=1.0_DBL/3_DBL
+DO k=1,10000
+  x=x+r
+  y=k*r
+WRITE (*,*) k,x,y
+END DO
+
+!END
+END PROGRAM arrotondamenti_4
