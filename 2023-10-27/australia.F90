@@ -43,7 +43,7 @@ PROGRAM Australia
     READ(20,*) MatriceTemperature(Riga,:)
    END DO
 
-   !CALCOLO MEDIE E LE METTO IN UN VETTORE
+   !CALCOLO MEDIE E LE METTO IN UN VETTORE (IN CASO DI FILE CON NODATAVALUE CICLO ESPLICITO SU COLONNE PER ESCLUDERE I NODATAVALUE DALLA SOMMA)
     DO Riga = 1, NumeroRighe
         VettoreTemperatureMedie(Riga) = SUM(MatriceTemperature(Riga,:))/NumeroColonne
     END DO

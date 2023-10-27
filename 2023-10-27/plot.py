@@ -15,7 +15,7 @@ with open(file_path, 'r') as file:
         y_values.append(y)
 
 # Create a scatter plot
-plt.scatter(x_values, y_values, label="Data Points")
+plt.scatter(x_values, y_values, label="Temperature")
 
 # Customize the plot
 plt.title("Temperature vs. Latitude")
