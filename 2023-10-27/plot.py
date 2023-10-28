@@ -1,14 +1,14 @@
 import matplotlib.pyplot as plt
 
 # Define the file path
-file_path = 'medie.txt'  # Replace with your file path
+FILEPATH = 'medie.txt'  # Replace with your file path
 
 # Initialize lists to store x and y values
 x_values = []
 y_values = []
 
 # Read the data from the file
-with open(file_path, 'r') as file:
+with open(FILEPATH, 'r', encoding='utf-8') as file:
     for line in file:
         x, y = map(float, line.split())
         x_values.append(x)
