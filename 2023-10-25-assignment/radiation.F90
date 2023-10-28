@@ -1,15 +1,32 @@
 PROGRAM RADIATION
    IMPLICIT NONE
 
-   CHARACTER(LEN=100) :: FILE_INPUT='radiation.dat', FILE_OUTPUT='results.dat'
+   CHARACTER(LEN=100) :: FILE_INPUT='radiation.dat', FILE_OUTPUT='results.dat', TempChar
    INTEGER :: IO, NumeroRighe=0, Riga=1, i=0,j=0
    REAL, ALLOCATABLE, DIMENSION(:,:) :: Dati
    REAL :: TotalShortwave=0, TotalInfrared=0
    INTEGER, DIMENSION(6) :: DataBuffer
-   LOGICAL :: DataCheck
+   LOGICAL :: DataCheck, ESISTE 
 
+   WRITE(*,*) 'Fornire file input: '
+   READ(*,*) FILE_INPUT
    OPEN(UNIT=20,FILE=FILE_INPUT,STATUS='OLD',ACTION='READ',IOSTAT=IO)
-   OPEN(UNIT=21,FILE=FILE_OUTPUT,STATUS='replace',IOSTAT=IO)
+   IF (IO/=0) STOP 'Errore apertura file input'
+
+   WRITE(*,*) 'Fornire file output: '
+   READ(*,*) FILE_OUTPUT
+   INQUIRE(FILE=FILE_OUTPUT,EXIST=ESISTE)
+
+   IF (ESISTE) THEN
+      WRITE(*,*) 'Il file esiste gia, sovrascriverlo? (y/n)'
+      READ(*,*) TempChar
+      IF (TempChar=='N' .OR. TempChar=='n') STOP 'Termine programma'
+      OPEN(UNIT=21,FILE=FILE_OUTPUT,STATUS='replace',IOSTAT=IO)
+      IF (IO/=0) STOP 'Errore apertura file output'
+   ELSE
+      OPEN(UNIT=21,FILE=FILE_OUTPUT,STATUS='new',IOSTAT=IO)
+      IF (IO/=0) STOP 'Errore apertura file output'
+   END IF
 
    !CONTO RIGHE
    READ(20,*)  !SALTO INTESTAZIONE
