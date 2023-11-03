@@ -114,12 +114,17 @@ PROGRAM RADIATION
       END IF
 
    END DO
+
+!CONVERTO IN MJ/m^2
+   TotalShortwave = TotalShortwave * 6e-5
+   TotalInfrared = TotalInfrared * 6e-5
+
 !SCRITTURA ULTIMO GIORNO
    WRITE(21,100) DataBuffer(1:3), TotalShortwave, TotalInfrared
 
    CLOSE(20)
    CLOSE(21)
-100 FORMAT(I2,1X,I2,1X,I4,1X,F10.2,1X,F10.2)
+100 FORMAT(I2,1X,I2,1X,I4,1X,F10.4,1X,F10.4)
 101 FORMAT(A,1X,I2,'/',I2,'/',I4,1X,I2,':',I2,':',I2,1X,A,1X,I2,'/',I2,'/',I4,1X,I2,':',I2,':',I2)
 
    DEALLOCATE(Dati)
