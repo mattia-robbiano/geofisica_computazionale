@@ -31,6 +31,9 @@ PROGRAM RADIATION
       OPEN(UNIT=21,FILE=FILE_OUTPUT,STATUS='new',IOSTAT=IO)
       IF (IO/=0) STOP 'Errore apertura file output'
    END IF
+   !SCRIVO INTESTAZIONE FILE OUTPUT
+   WRITE(21,*) 'Sum of daily short wave and infrared radiation in MJ/m^2'
+   WRITE(21,'(A6,7X,A10,3X,A8)') 'Giorno ', 'short-wave ', 'infrared'
 
    !CONTO RIGHE
    READ(20,*)  !SALTO INTESTAZIONE
@@ -142,7 +145,7 @@ PROGRAM RADIATION
  CLOSE(20)
  CLOSE(21)
  !FORMATI
- 100 FORMAT(I2,1X,I2,1X,I4,1X,F10.4,1X,F10.4)
+ 100 FORMAT(I2,'/',I2,'/',I4,1X,F10.4,1X,F10.4)
  101 FORMAT(A,1X,I2,'/',I2,'/',I4,1X,I2,':',I2,':',I2,1X,A,1X,I2,'/',I2,'/',I4,1X,I2,':',I2,':',I2)
 
  !DEALLOCAZIONE
