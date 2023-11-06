@@ -6,12 +6,12 @@ CONTAINS
 
     SUBROUTINE MEDIARE(MatriceTemperature,MatriceMedia, NumeroRighe, NumeroColonne)
         IMPLICIT NONE
-        INTEGER, INTENT(IN) :: NumeroRighe, NumeroColonne
-        REAL, DIMENSION(NumeroRighe,NumeroColonne), INTENT(IN) :: MatriceTemperature(NumeroRighe,NumeroColonne)
-        REAL, INTENT(OUT) :: MatriceMedia(NumeroRighe,NumeroColonne)
-        REAL, DIMENSION(NumeroRighe+1,NumeroColonne+1) :: MatriceTemperaturePadded
-        REAL, DIMENSION(3,3) :: MatriceFiltro
         INTEGER :: Colonna=0, Riga=0
+        INTEGER, INTENT(IN) :: NumeroRighe, NumeroColonne
+        REAL(KIND =8), DIMENSION(NumeroRighe,NumeroColonne), INTENT(IN) :: MatriceTemperature(NumeroRighe,NumeroColonne)
+        REAL(KIND =8), INTENT(OUT) :: MatriceMedia(NumeroRighe,NumeroColonne)
+        REAL(KIND =8), DIMENSION(NumeroRighe+2,NumeroColonne+2) :: MatriceTemperaturePadded
+        REAL(KIND =8), DIMENSION(3,3) :: MatriceFiltro
 
         !Definisco la matrice filtro
         MatriceFiltro = RESHAPE((/0.3,0.5,0.3,0.5,1.0,0.5,0.3,0.5,0.3/),(/3,3/))
@@ -22,10 +22,10 @@ CONTAINS
                 MatriceTemperaturePadded(Riga+1,Colonna+1) = MatriceTemperature(Riga,Colonna)
             END DO
         END DO
-        MatriceTemperaturePadded(1,:) = 0
-        MatriceTemperaturePadded(:,1) = 0
-        MatriceTemperaturePadded(NumeroRighe+1,:) = 0
-        MatriceTemperaturePadded(:,NumeroColonne+1) = 0
+        MatriceTemperaturePadded(1,:) = 0.
+        MatriceTemperaturePadded(:,1) = 0.
+        MatriceTemperaturePadded(NumeroRighe+2,:) = 0.
+        MatriceTemperaturePadded(:,NumeroColonne+2) = 0.
         
         !Assegno ad ogni punto della matrice media il valore della media dei punti adiacenti
         Colonne: DO Colonna=1,NumeroColonne
@@ -39,6 +39,7 @@ CONTAINS
                                              MatriceFiltro(3,1)*MatriceTemperaturePadded(Riga+2,Colonna) + &
                                              MatriceFiltro(3,2)*MatriceTemperaturePadded(Riga+2,Colonna+1) + &
                                              MatriceFiltro(3,3)*MatriceTemperaturePadded(Riga+2,Colonna+2)
+                MatriceMedia(Riga,Colonna) = MatriceMedia(Riga,Colonna)/9
             END DO Righe
         END DO Colonne
     

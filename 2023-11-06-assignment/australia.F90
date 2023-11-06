@@ -7,9 +7,8 @@ PROGRAM Australia
     INTEGER :: IO, NumeroColonne, NumeroRighe, NODATA_value, Riga=1
     REAL :: XCorner, YCorner, CellSize, Latitudine 
     CHARACTER :: Trash
-    REAL, ALLOCATABLE, DIMENSION(:) :: MatriceTemperature(:,:), VettoreTemperatureMedie(:)
+    REAL(KIND=8), ALLOCATABLE, DIMENSION(:) :: MatriceTemperature(:,:), VettoreTemperatureMedie(:),MatriceMedia(:,:)
     LOGICAL :: lexist, lexist1
-    REAL, ALLOCATABLE, DIMENSION(:,:) :: MatriceMedia(:,:)
  
     !AUPERTURA FILE INGRESSO E USCITA
     OPEN(UNIT=20,FILE='monthly_temperature_sample.txt',STATUS='OLD',ACTION='READ',IOSTAT=IO)
@@ -31,6 +30,7 @@ PROGRAM Australia
     END IF
 
     IF (.NOT.lexist1)THEN
+
         OPEN(UNIT=22,FILE='MatriceMedia.txt',STATUS='new',IOSTAT=IO)
         IF (IO/=0) STOP 'ERRORE APERTURA FILE USCITA'
      ELSE
@@ -46,7 +46,8 @@ PROGRAM Australia
 
 
  
-    !LETTURA INTESTAZIONE
+    
+     !LETTURA INTESTAZIONE
     READ(20,*) Trash, NumeroColonne
     READ(20,*) Trash, NumeroRighe
     READ(20,*) Trash, XCorner
@@ -67,6 +68,7 @@ PROGRAM Australia
  
     !CHIAMO SUBROUTINE FILTRO
     CALL MEDIARE(MatriceTemperature, MatriceMedia, NumeroRighe, NumeroColonne)
+
     !CALCOLO MEDIE E LE METTO IN UN VETTORE (IN CASO DI FILE CON NODATAVALUE CICLO ESPLICITO SU COLONNE PER ESCLUDERE I NODATAVALUE DALLA SOMMA)
      DO Riga = 1, NumeroRighe
          VettoreTemperatureMedie(Riga) = SUM(MatriceTemperature(Riga,:))/NumeroColonne
@@ -78,14 +80,20 @@ PROGRAM Australia
          WRITE(21,*) Latitudine, VettoreTemperatureMedie(Riga)
      END DO
 
-     !SCRITTURA SU FILE MatriceMedia
-        DO Riga = 1, NumeroRighe
-            WRITE(22,*) MatriceMedia(Riga,:)
-        END DO
+    !SCRITTURA SU FILE MatriceMedia in formato matriciale NumeroRighe x NumeroColonne
+     MatriceMedia = MatriceTemperature
+    DO Riga = 1, NumeroRighe
+        WRITE(22,100) MatriceMedia(Riga,:)
+    END DO
  
+    WRITE(*,*) NumeroColonne
+
     !CHIUDO FILE
     CLOSE(UNIT=20)
     CLOSE(UNIT=21)
+
+    !FORMATI
+    100 FORMAT(886(2X,F7.3))
  
     !DEALLOCAZIONE MATRICE
     DEALLOCATE(MatriceTemperature)
