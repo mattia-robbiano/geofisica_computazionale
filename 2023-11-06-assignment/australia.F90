@@ -17,13 +17,13 @@ PROGRAM Australia
 !---------------------------------------------------------------------------------------------------------------------
 !IO SECTION
    CALL OPEN_INPUT_FILE(20, 'monthly_temperature_sample.txt', ERROR)
-   IF(ERROR) STOP 'ERRORE APERTURA monthly_temperature_sample.txt'
-   CALL OPEN_OUTPUT_FILE(21, 'MediaPerLatitudine.txt', ERROR)
-   IF(ERROR) STOP 'ERRORE APERTURA MediaPerLatitudine.txt'
-   CALL OPEN_OUTPUT_FILE(22, 'MatriceMediata.txt', ERROR)
-   IF(ERROR) STOP 'ERRORE APERTURA MatriceMediata.txt'
-   CALL OPEN_OUTPUT_FILE(23, 'MatriceFiltrata.txt', ERROR)
-   IF(ERROR) STOP 'ERRORE APERTURA MatriceFiltrata.txt'
+   IF(ERROR) STOP
+   CALL OPEN_OUTPUT_FILE(21, 'temperature_latitudine.txt', ERROR)
+   IF(ERROR) STOP
+   CALL OPEN_OUTPUT_FILE(22, 'temperature_filtrate.txt', ERROR)
+   IF(ERROR) STOP
+   CALL OPEN_OUTPUT_FILE(23, 'temperature_mediate.txt', ERROR)
+   IF(ERROR) STOP
 
 
 !---------------------------------------------------------------------------------------------------------------------
@@ -54,8 +54,8 @@ PROGRAM Australia
 !ESECUZIONE
 
    !CALCOLO MATRICE MEDIATA E FILTRATA VIA SUBROUTINE
-   CALL MEDIARE(MatriceTemperature, MatriceMedia, NumeroRighe, NumeroColonne)
-   CALL FILTRA(MatriceTemperature, MatriceFiltrata, NumeroRighe, NumeroColonne, NumeroRigheFiltrata, NumeroColonneFiltrata)
+   CALL FILTRO(MatriceTemperature, MatriceMedia, NumeroRighe, NumeroColonne)
+   CALL MEDIA(MatriceTemperature, MatriceFiltrata, NumeroRighe, NumeroColonne, NumeroRigheFiltrata, NumeroColonneFiltrata)
    !CALCOLO MEDIE (IN CASO DI FILE CON NODATAVALUE CICLO ESPLICITO SU COLONNE PER ESCLUDERE I NODATAVALUE DALLA SOMMA)
    DO Riga = 1, NumeroRighe
       VettoreTemperatureMedie(Riga) = SUM(MatriceTemperature(Riga,:))/NumeroColonne

@@ -3,7 +3,7 @@ MODULE SUB_AUST_4
    USE PROCESSING
    CONTAINS
 
-   SUBROUTINE FILTRA(MatriceTemperature,MatriceFiltrata, NumeroRighe,NumeroColonne,NumeroRigheFiltrata,NumeroColonneFiltrata)
+   SUBROUTINE MEDIA(MatriceTemperature,MatriceFiltrata, NumeroRighe,NumeroColonne,NumeroRigheFiltrata,NumeroColonneFiltrata)
       IMPLICIT NONE
 
       INTEGER, INTENT(IN) :: NumeroRighe, NumeroColonne, NumeroRigheFiltrata, NumeroColonneFiltrata
@@ -18,9 +18,9 @@ MODULE SUB_AUST_4
       CALL CrossCorrelation2D(MatriceTemperature,MatriceFiltrata,MatriceFiltro,9,9)
       MatriceFiltrata = MatriceFiltrata/81
 
-   END SUBROUTINE
+   END SUBROUTINE MEDIA
 
-   SUBROUTINE MEDIARE(MatriceTemperature,MatriceMedia, NumeroRighe, NumeroColonne)
+   SUBROUTINE FILTRO(MatriceTemperature,MatriceMedia, NumeroRighe, NumeroColonne)
       IMPLICIT NONE
       INTEGER :: Colonna, Riga
       INTEGER, INTENT(IN) :: NumeroRighe, NumeroColonne
@@ -38,5 +38,5 @@ MODULE SUB_AUST_4
       CALL Padding(MatriceTemperature,NumeroRighe,NumeroColonne,MatriceTemperaturePadded,1,1)
       CALL CrossCorrelation2D(MatriceTemperaturePadded,MatriceMedia,MatriceFiltro,1,1)
 
-   END SUBROUTINE
+   END SUBROUTINE FILTRO
 END MODULE SUB_AUST_4
