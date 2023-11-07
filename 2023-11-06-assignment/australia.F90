@@ -12,19 +12,19 @@ PROGRAM Australia
    CHARACTER :: Trash
    REAL(KIND=8), ALLOCATABLE, DIMENSION(:) :: VettoreTemperatureMedie(:)
    REAL(KIND=8), ALLOCATABLE, DIMENSION(:,:) :: MatriceTemperature(:,:), MatriceMedia(:,:), MatriceFiltrata(:,:)
-   LOGICAL :: lexist
-   INTEGER :: Err=0
+   LOGICAL :: ERROR
 
 !---------------------------------------------------------------------------------------------------------------------
 !IO SECTION
-   CALL InputFile('monthly_temperature_sample.txt',Err)
-   IF(Err/=0) STOP 'ERRORE APERTURA monthly_temperature_sample.txt'
-   CALL OutputFile('MediaLatitudine.txt',Err)
-   IF(Err/=0) STOP 'ERRORE APERTURA MediaLatitudine.txt'
-   CALL OutputFile('MatriceMediata.txt',Err)
-   IF(Err/=0) STOP 'ERRORE APERTURA MatriceMediata.txt'
-   CALL OutputFile('MatriceFiltrata.txt',Err)
-   IF(Err/=0) STOP 'ERRORE APERTURA MatriceFiltrata.txt'
+   CALL OPEN_INPUT_FILE(20, 'monthly_temperature_sample.txt', ERROR)
+   IF(ERROR) STOP 'ERRORE APERTURA monthly_temperature_sample.txt'
+   CALL OPEN_OUTPUT_FILE(21, 'MediaPerLatitudine.txt', ERROR)
+   IF(ERROR) STOP 'ERRORE APERTURA MediaPerLatitudine.txt'
+   CALL OPEN_OUTPUT_FILE(22, 'MatriceMediata.txt', ERROR)
+   IF(ERROR) STOP 'ERRORE APERTURA MatriceMediata.txt'
+   CALL OPEN_OUTPUT_FILE(23, 'MatriceFiltrata.txt', ERROR)
+   IF(ERROR) STOP 'ERRORE APERTURA MatriceFiltrata.txt'
+
 
 !---------------------------------------------------------------------------------------------------------------------
 !LETTURE FILE
@@ -97,4 +97,3 @@ PROGRAM Australia
    DEALLOCATE(MatriceMedia)
 
 END PROGRAM Australia
-

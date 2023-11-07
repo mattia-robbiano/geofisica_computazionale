@@ -1,91 +1,76 @@
 MODULE IOSTREAM
 CONTAINS
+   SUBROUTINE OPEN_INPUT_FILE(FILE_UNIT, FILE_NAME, ERROR)
+      IMPLICIT NONE
+      INTEGER, INTENT(IN) :: FILE_UNIT
+      CHARACTER(LEN=*), INTENT(IN) :: FILE_NAME
+      LOGICAL, INTENT(OUT) :: ERROR
+      INTEGER :: io
+      LOGICAL :: iexist
 
-   !-----------------------------------------------------------------------
-   !SUBROUTINE HANDLING THE INPUT FILE. THE FLAG ERR IS SET TO 1 IF THERE IS AN ERROR IN OPENING THE FILE
-   SUBROUTINE InputFile(ProvidedFileName, Err)
+      ! Check if the file exists
+      INQUIRE(FILE=FILE_NAME, EXIST=iexist)
 
-      CHARACTER(LEN=*), INTENT(IN) :: ProvidedFileName
-      INTEGER, INTENT(OUT) :: Err
-      CHARACTER(LEN=100) :: FILENAME
-      INTEGER :: IO
-      LOGICAL :: lexist
-
-      Err=0
-
-      !PROVIDE THE FILE NAME
-      IF(ProvidedFileName=='') THEN
-         PRINT *,'Provide the name of the input file:'
-         READ *, FILENAME
+      IF (.NOT. iexist) THEN
+         ! File does not exist
+         WRITE(*, '(A)', ADVANCE='NO') 'ERROR: FILE NOT FOUND - ', FILE_NAME
+         ERROR = .TRUE.
       ELSE
-         FILENAME=ProvidedFileName
-      END IF
-
-      !CHECK IF THE FILE EXISTS
-      INQUIRE(FILE=FILENAME,EXIST=lexist)
-
-      !HANDLE CASES
-      IF(.NOT.lexist)THEN
-         PRINT *,'FILE DOES NOT EXIST, ENDING PROGRAM'
-         Err =1
-      ELSE
-         OPEN(UNIT=20,FILE='FILENAME',STATUS='OLD',ACTION='READ',IOSTAT=IO)
-         IF(IO/=0) THEN
-            PRINT *,'ERROR OPENING INPUT FILE'
-            Err = 1
-         END IF
-      END IF
-
-   END SUBROUTINE InputFile
-
-   !-----------------------------------------------------------------------
-   !SUBROUTING HANDLING THE OUTPUT FILE. THE FLAG ERR IS SET TO 1 IF THERE IS AN ERROR IN OPENING THE FILE
-
-   SUBROUTINE OutputFile(ProvidedFileName,Err)
-      CHARACTER(LEN=*), INTENT(IN) :: ProvidedFileName
-      INTEGER, INTENT(OUT) :: Err
-      CHARACTER(LEN=100) :: FILENAME
-      CHARACTER(LEN=1) :: Trash
-      INTEGER :: IO
-      LOGICAL :: lexist
-
-      Err = 0
-
-      !PROVIDE THE FILE NAME
-      IF(ProvidedFileName=='') THEN
-         PRINT *,'Provide the name of the output file:'
-         READ *, FILENAME
-      ELSE
-         FILENAME=ProvidedFileName
-      END IF
-      
-      !CHECK IF THE FILE EXISTS
-      INQUIRE(FILE=FILENAME,EXIST=lexist)
-
-      !HANDLE CASES
-      Existence : IF(.NOT.lexist)THEN
-         OPEN(UNIT=21,FILE=FILENAME,STATUS='new',IOSTAT=IO)
-         IF (IO/=0) THEN
-            WRITE(*,*)'ERROR OPENING OUTPUT FILE'
-            Err = 1
-         END IF
-      ELSE
-         WRITE(*,*)'PROVIDED FILE ALREADY EXISTS, DO YOU WANT TO REPLACE IT? (y/n)'
-         READ(*,*)Trash
-
-         Replacing : IF(Trash=='y' .OR. Trash=='Y')THEN
-            OPEN(UNIT=21,FILE=FILENAME,STATUS='replace',IOSTAT=IO)
-            IF (IO/=0) THEN
-               WRITE(*,*)'ERROR OPENING OUTPUT FILE'
-               Err = 1
-            END IF
+         ! File exists, open it
+         OPEN(UNIT=FILE_UNIT, FILE=FILE_NAME, STATUS='OLD', ACTION='READ', IOSTAT=IO)
+         IF (IO /= 0) THEN
+            WRITE(*, '(A)', ADVANCE='NO') 'ERROR OPENING FILE: ', FILE_NAME
+            ERROR = .TRUE.
          ELSE
-            WRITE(*,*)'FILE NOT REPLACED, ENDING PROGRAM'
-            Err = 1
-         END IF Replacing
+            WRITE(*, '(A)', ADVANCE='NO') 'FILE OPENED SUCCESSFULLY: ', FILE_NAME
+            ERROR = .FALSE.
+         END IF
+      END IF
+   END SUBROUTINE OPEN_INPUT_FILE
 
-      END IF Existence
-
-   END SUBROUTINE OutputFile
+   SUBROUTINE OPEN_OUTPUT_FILE(FILE_UNIT, FILE_NAME, ERROR)
+      IMPLICIT NONE
+      INTEGER, INTENT(IN) :: FILE_UNIT
+      CHARACTER(LEN=*), INTENT(IN) :: FILE_NAME
+      LOGICAL, INTENT(OUT) :: ERROR
+      INTEGER :: io
+      LOGICAL :: iexist
+      CHARACTER(1) :: response
+    
+      ! Check if the file exists
+      INQUIRE(FILE=FILE_NAME, EXIST=iexist)
+    
+      IF (iexist) THEN
+        ! File exists; ask the user if they want to replace it
+        WRITE(*, '(A)', ADVANCE='NO') 'File already exists: ', FILE_NAME
+        WRITE(*, '(A)', ADVANCE='NO') 'Do you want to replace it? (Y/N)'
+        READ(*, '(A)') response
+    
+        IF (response == 'Y' .OR. response == 'y') THEN
+          OPEN(UNIT=FILE_UNIT, FILE=FILE_NAME, STATUS='REPLACE', ACTION='WRITE', IOSTAT=IO)
+          IF (IO /= 0) THEN
+            WRITE(*, '(A)', ADVANCE='NO') 'ERROR OPENING FILE: ', FILE_NAME
+            ERROR = .TRUE.
+          ELSE
+            WRITE(*, '(A)', ADVANCE='NO') 'FILE REPLACED AND OPENED SUCCESSFULLY: ', FILE_NAME
+            ERROR = .FALSE.
+          END IF
+        ELSE
+          WRITE(*, '(A)', ADVANCE='NO') 'User chose not to replace the file: ', FILE_NAME
+          ERROR = .TRUE.
+        END IF
+      ELSE
+        ! File does not exist; open it for writing
+        OPEN(UNIT=FILE_UNIT, FILE=FILE_NAME, STATUS='UNKNOWN', ACTION='WRITE', IOSTAT=IO)
+        IF (IO /= 0) THEN
+          WRITE(*, '(A)', ADVANCE='NO') 'ERROR OPENING FILE: ', FILE_NAME
+          ERROR = .TRUE.
+        ELSE
+          WRITE(*, '(A)', ADVANCE='NO') 'FILE CREATED AND OPENED SUCCESSFULLY: ', FILE_NAME
+          ERROR = .FALSE.
+        END IF
+      END IF
+    END SUBROUTINE OPEN_OUTPUT_FILE    
 
 END MODULE IOSTREAM
+
