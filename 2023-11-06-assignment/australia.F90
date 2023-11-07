@@ -1,6 +1,8 @@
 PROGRAM Australia
 
    USE SUB_AUST_4
+   USE PROCESSING
+   USE IOSTREAM
 
    IMPLICIT NONE
 
@@ -11,64 +13,18 @@ PROGRAM Australia
    REAL(KIND=8), ALLOCATABLE, DIMENSION(:) :: VettoreTemperatureMedie(:)
    REAL(KIND=8), ALLOCATABLE, DIMENSION(:,:) :: MatriceTemperature(:,:), MatriceMedia(:,:), MatriceFiltrata(:,:)
    LOGICAL :: lexist
+   INTEGER :: Err=0
 
 !---------------------------------------------------------------------------------------------------------------------
 !IO SECTION
-
-   !AUPERTURA FILE INGRESSO 
-   OPEN(UNIT=20,FILE='monthly_temperature_sample.txt',STATUS='OLD',ACTION='READ',IOSTAT=IO)
-   IF(IO/=0) STOP 'ERRORE APERTURA FILE INGRESSO'
-
-   !APERTURA FILE USCITA MEDIE PER LATITUDINE
-   INQUIRE(FILE='medie.txt',EXIST=lexist)
-   IF (.NOT.lexist)THEN
-      OPEN(UNIT=21,FILE='medie.txt',STATUS='new',IOSTAT=IO)
-      IF (IO/=0) STOP 'ERRORE APERTURA FILE USCITA'
-   ELSE
-      WRITE(*,*)'ATTENZIONE file gia presente, sovrascrivo? (y/n)'
-      READ(*,*)Trash
-      IF(Trash=='y' .OR. Trash=='Y')THEN
-         OPEN(UNIT=21,FILE='medie.txt',STATUS='replace',IOSTAT=IO)
-         IF (IO/=0) STOP 'ERRORE APERTURA FILE USCITA'
-      ELSE
-         STOP
-      END IF
-   END IF
-
-   !APERTURA FILE USCITA MATRICE MEDIATA
-   INQUIRE(FILE='MatriceMedia.txt',EXIST=lexist)
-   IF (.NOT.lexist)THEN
-
-      OPEN(UNIT=22,FILE='MatriceMedia.txt',STATUS='new',IOSTAT=IO)
-      IF (IO/=0) STOP 'ERRORE APERTURA FILE USCITA'
-   ELSE
-      WRITE(*,*)'ATTENZIONE file gia presente, sovrascrivo? (y/n)'
-      READ(*,*)Trash
-      IF(Trash=='y' .OR. Trash=='Y')THEN
-         OPEN(UNIT=22,FILE='MatriceMedia.txt',STATUS='replace',IOSTAT=IO)
-         IF (IO/=0) STOP 'ERRORE APERTURA FILE USCITA'
-      ELSE
-         STOP
-      END IF
-   END IF
-
-   !APERTURA FILE USCITA MATRICE FILTRATA
-    INQUIRE(FILE='MatriceFiltrata.txt',EXIST=lexist)
-    IF (.NOT.lexist)THEN
-
-        OPEN(UNIT=23,FILE='MatriceFiltrata.txt',STATUS='new',IOSTAT=IO)
-        IF (IO/=0) STOP 'ERRORE APERTURA FILE USCITA'
-    ELSE
-        WRITE(*,*)'ATTENZIONE file gia presente, sovrascrivo? (y/n)'
-        READ(*,*)Trash
-        IF(Trash=='y' .OR. Trash=='Y')THEN
-            OPEN(UNIT=23,FILE='MatriceFiltrata.txt',STATUS='replace',IOSTAT=IO)
-            IF (IO/=0) STOP 'ERRORE APERTURA FILE USCITA'
-        ELSE
-            STOP
-        END IF
-    END IF
-
+   CALL InputFile('monthly_temperature_sample.txt',Err)
+   IF(Err/=0) STOP 'ERRORE APERTURA monthly_temperature_sample.txt'
+   CALL OutputFile('MediaLatitudine.txt',Err)
+   IF(Err/=0) STOP 'ERRORE APERTURA MediaLatitudine.txt'
+   CALL OutputFile('MatriceMediata.txt',Err)
+   IF(Err/=0) STOP 'ERRORE APERTURA MatriceMediata.txt'
+   CALL OutputFile('MatriceFiltrata.txt',Err)
+   IF(Err/=0) STOP 'ERRORE APERTURA MatriceFiltrata.txt'
 
 !---------------------------------------------------------------------------------------------------------------------
 !LETTURE FILE
@@ -100,7 +56,6 @@ PROGRAM Australia
    !CALCOLO MATRICE MEDIATA E FILTRATA VIA SUBROUTINE
    CALL MEDIARE(MatriceTemperature, MatriceMedia, NumeroRighe, NumeroColonne)
    CALL FILTRA(MatriceTemperature, MatriceFiltrata, NumeroRighe, NumeroColonne, NumeroRigheFiltrata, NumeroColonneFiltrata)
-
    !CALCOLO MEDIE (IN CASO DI FILE CON NODATAVALUE CICLO ESPLICITO SU COLONNE PER ESCLUDERE I NODATAVALUE DALLA SOMMA)
    DO Riga = 1, NumeroRighe
       VettoreTemperatureMedie(Riga) = SUM(MatriceTemperature(Riga,:))/NumeroColonne
@@ -123,7 +78,7 @@ PROGRAM Australia
 
    !SCRITTURA SU FILE Matrice Filtrata
     DO Riga = 1, NumeroRigheFiltrata
-        WRITE(23,*) MatriceFiltrata(Riga,:)
+        WRITE(23,101) MatriceFiltrata(Riga,:)
     END DO
 
    !---------------------------------------------------------------------------------------------------------------------
