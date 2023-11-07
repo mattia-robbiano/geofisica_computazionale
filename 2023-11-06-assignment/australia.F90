@@ -16,13 +16,13 @@ PROGRAM Australia
 
 !---------------------------------------------------------------------------------------------------------------------
 !IO SECTION
-   CALL OPEN_INPUT_FILE(20, 'monthly_temperature_sample.txt', ERROR)
+   CALL OPEN_INPUT_FILE(20, './DATA/monthly_temperature_sample.txt', ERROR)
    IF(ERROR) STOP
-   CALL OPEN_OUTPUT_FILE(21, 'temperature_latitudine.txt', ERROR)
+   CALL OPEN_OUTPUT_FILE(21, './RESULTS/temperature_latitudine.txt', ERROR)
    IF(ERROR) STOP
-   CALL OPEN_OUTPUT_FILE(22, 'temperature_filtrate.txt', ERROR)
+   CALL OPEN_OUTPUT_FILE(22, './RESULTS/temperature_filtrate.txt', ERROR)
    IF(ERROR) STOP
-   CALL OPEN_OUTPUT_FILE(23, 'temperature_mediate.txt', ERROR)
+   CALL OPEN_OUTPUT_FILE(23, './RESULTS/temperature_mediate.txt', ERROR)
    IF(ERROR) STOP
 
 
