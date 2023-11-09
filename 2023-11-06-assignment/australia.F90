@@ -6,16 +6,17 @@ PROGRAM Australia
 
    IMPLICIT NONE
 
-!DECLARATIONS
-   INTEGER :: IO, NumeroColonne, NumeroRighe, NODATA_value, Riga=1, NumeroRigheFiltrata, NumeroColonneFiltrata
+   !DECLARATIONS
+   INTEGER :: IO, NumeroColonne, NumeroRighe, NODATA_value, Riga=1, NumeroRigheMedia, NumeroColonneMedia
    REAL :: XCorner, YCorner, CellSize, Latitudine
    CHARACTER :: Trash
    REAL(KIND=8), ALLOCATABLE, DIMENSION(:) :: VettoreTemperatureMedie(:)
    REAL(KIND=8), ALLOCATABLE, DIMENSION(:,:) :: MatriceTemperature(:,:), MatriceMedia(:,:), MatriceFiltrata(:,:)
    LOGICAL :: ERROR
 
-!---------------------------------------------------------------------------------------------------------------------
-!IO SECTION
+   !---------------------------------------------------------------------------------------------------------------------
+   !IO SECTION
+
    CALL OPEN_INPUT_FILE(20, './DATA/monthly_temperature_sample.txt', ERROR)
    IF(ERROR) STOP
    CALL OPEN_OUTPUT_FILE(21, './RESULTS/temperature_latitudine.txt', ERROR)
@@ -25,9 +26,8 @@ PROGRAM Australia
    CALL OPEN_OUTPUT_FILE(23, './RESULTS/temperature_mediate.txt', ERROR)
    IF(ERROR) STOP
 
-
-!---------------------------------------------------------------------------------------------------------------------
-!LETTURE FILE
+   !---------------------------------------------------------------------------------------------------------------------
+   !READING AND ALLOCATION SECTION
 
    !LETTURA INTESTAZIONE
    READ(20,*) Trash, NumeroColonne
@@ -36,13 +36,13 @@ PROGRAM Australia
    READ(20,*) Trash, YCorner
    READ(20,*) Trash, CellSize
    READ(20,*) Trash, NODATA_value
-   NumeroRigheFiltrata = NumeroRighe/9
-   NumeroColonneFiltrata = NumeroColonne/9
+   NumeroRigheMedia = NumeroRighe/9
+   NumeroColonneMedia = NumeroColonne/9
 
    !ALLOCAZIONE MATRICE
    ALLOCATE(MatriceTemperature(NumeroRighe,NumeroColonne), VettoreTemperatureMedie(NumeroRighe), STAT=IO)
    IF(IO/=0) STOP 'ERRORE ALLOCAZIONE MATRICE'
-   ALLOCATE(MatriceMedia(NumeroRighe,NumeroColonne),MatriceFiltrata(NumeroRigheFiltrata,NumeroColonneFiltrata), STAT=IO)
+   ALLOCATE(MatriceFiltrata(NumeroRighe,NumeroColonne),MatriceMedia(NumeroRigheMedia,NumeroColonneMedia), STAT=IO)
    IF(IO/=0) STOP 'ERRORE ALLOCAZIONE MATRICE'
 
    !LETTURA MATRICE
@@ -50,35 +50,35 @@ PROGRAM Australia
       READ(20,*) MatriceTemperature(Riga,:)
    END DO
 
-!---------------------------------------------------------------------------------------------------------------------
-!ESECUZIONE
+   !---------------------------------------------------------------------------------------------------------------------
+   !EXECUTION SECTION
 
    !CALCOLO MATRICE MEDIATA E FILTRATA VIA SUBROUTINE
-   CALL FILTRO(MatriceTemperature, MatriceMedia, NumeroRighe, NumeroColonne)
-   CALL MEDIA(MatriceTemperature, MatriceFiltrata, NumeroRighe, NumeroColonne, NumeroRigheFiltrata, NumeroColonneFiltrata)
+   CALL FILTRO(MatriceTemperature, MatriceFiltrata, NumeroRighe, NumeroColonne)
+   CALL MEDIA(MatriceTemperature, MatriceMedia, NumeroRighe, NumeroColonne, NumeroRigheMedia, NumeroColonneMedia)
+
    !CALCOLO MEDIE (IN CASO DI FILE CON NODATAVALUE CICLO ESPLICITO SU COLONNE PER ESCLUDERE I NODATAVALUE DALLA SOMMA)
    DO Riga = 1, NumeroRighe
       VettoreTemperatureMedie(Riga) = SUM(MatriceTemperature(Riga,:))/NumeroColonne
    END DO
 
-!---------------------------------------------------------------------------------------------------------------------
-!SCRITTURA SU FILE
+   !---------------------------------------------------------------------------------------------------------------------
+   !OUTPUT SECTION
 
-   !SCRITTURA SU FILE Media per latitudine
+   !SCRITTURA SU FILE temperature_latitudine
    DO Riga = 1, NumeroRighe
       Latitudine = YCorner + (NumeroRighe-Riga)*CellSize
       WRITE(21,*) Latitudine, VettoreTemperatureMedie(Riga)
    END DO
 
-   !SCRITTURA SU FILE Matrice Mediata
-   MatriceMedia = MatriceTemperature
+   !SCRITTURA SU FILE temperature_filtrate
    DO Riga = 1, NumeroRighe
-      WRITE(22,100) MatriceMedia(Riga,:)
+      WRITE(22,100) MatriceFiltrata(Riga,:)
    END DO
 
-   !SCRITTURA SU FILE Matrice Filtrata
-    DO Riga = 1, NumeroRigheFiltrata
-        WRITE(23,101) MatriceFiltrata(Riga,:)
+   !SCRITTURA SU FILE temperature_mediate
+    DO Riga = 1, NumeroRigheMedia
+        WRITE(23,101) MatriceMedia(Riga,:)
     END DO
 
    !---------------------------------------------------------------------------------------------------------------------
@@ -86,6 +86,8 @@ PROGRAM Australia
    !CHIUDO FILE
    CLOSE(UNIT=20)
    CLOSE(UNIT=21)
+   CLOSE(UNIT=22)
+   CLOSE(UNIT=23)
 
    !FORMATI
    100 FORMAT(886(2X,F7.3))
