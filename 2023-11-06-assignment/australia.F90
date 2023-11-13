@@ -10,6 +10,8 @@ PROGRAM Australia
    INTEGER :: IO, NumeroColonne, NumeroRighe, NODATA_value, Riga=1, NumeroRigheMedia, NumeroColonneMedia
    REAL :: XCorner, YCorner, CellSize, Latitudine
    CHARACTER :: Trash
+   CHARACTER(LEN=100) :: Format100
+   CHARACTER(LEN=100) :: Format101
    REAL(KIND=8), ALLOCATABLE, DIMENSION(:) :: VettoreTemperatureMedie(:)
    REAL(KIND=8), ALLOCATABLE, DIMENSION(:,:) :: MatriceTemperature(:,:), MatriceMedia(:,:), MatriceFiltrata(:,:)
    LOGICAL :: ERROR
@@ -68,17 +70,24 @@ PROGRAM Australia
    !SCRITTURA SU FILE temperature_latitudine
    DO Riga = 1, NumeroRighe
       Latitudine = YCorner + (NumeroRighe-Riga)*CellSize
-      WRITE(21,*) Latitudine, VettoreTemperatureMedie(Riga)
+      WRITE(21,'(F7.3,1X,F7.3)') Latitudine, VettoreTemperatureMedie(Riga)
    END DO
+
+   Format100 = '(886(2X,F7.3))'
+   Format101 = '(98(2X,F7.3))'
+
+   WRITE(*,*) Format100
+   WRITE(*,*) Format101
+
 
    !SCRITTURA SU FILE temperature_filtrate
    DO Riga = 1, NumeroRighe
-      WRITE(22,100) MatriceFiltrata(Riga,:)
+      WRITE(22,Format100) MatriceFiltrata(Riga,:)
    END DO
 
    !SCRITTURA SU FILE temperature_mediate
     DO Riga = 1, NumeroRigheMedia
-        WRITE(23,101) MatriceMedia(Riga,:)
+        WRITE(23,Format101) MatriceMedia(Riga,:)
     END DO
 
    !---------------------------------------------------------------------------------------------------------------------
@@ -89,9 +98,9 @@ PROGRAM Australia
    CLOSE(UNIT=22)
    CLOSE(UNIT=23)
 
-   !FORMATI
-   100 FORMAT(886(2X,F7.3))
-   101 FORMAT(98(2X,F7.3))
+   !FORMATI COME STRINGHE
+   !100 FORMAT(886(2X,F7.3))
+   !101 FORMAT(98(2X,F7.3))
 
    !DEALLOCAZIONE MATRICE
    DEALLOCATE(MatriceTemperature)
