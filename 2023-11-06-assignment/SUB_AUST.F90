@@ -37,12 +37,8 @@ MODULE SUB_AUST
       
       !RIEMPO MatriceTemperaturePadded CON MatriceTemperature ORLATA DI ZERI
       CALL Padding(MatriceTemperature,NumeroRighe,NumeroColonne,MatriceTemperaturePadded,1,1)
-      !CROSS CORRELATION CON FILTRO (spiegazione in pseudocodice)
+      !CROSS CORRELATION CON FILTRO
       CALL CrossCorrelation2D(MatriceTemperaturePadded, MatriceFiltrata, MatriceFiltro,1,1)
-
-
-      !MOLTIPLICO PER FILTRO OGNI BLOCCO 3X3 CON STRIDE 1 PRIMA SU X POI SU Y
-
 
       !NORMALIZZO I QUATTRO ANGOLI
       MatriceFiltrata(1,2:NumeroColonne-1) = MatriceFiltrata(1,2:NumeroColonne-1)/3.1

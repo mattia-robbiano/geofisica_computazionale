@@ -46,7 +46,7 @@ MODULE PROCESSING
       RigheOutput = 1 + (RigheInput  - RigheFiltro) / StrideY
       ColonneOutput = 1 + (ColonneInput - ColonneFiltro) / StrideX
   
-      ! CROSS CORRELATION 2D (vedi pseudocodice)
+      ! CROSS CORRELATION 2D
       DO i = 1, RigheOutput
          DO j = 1, ColonneOutput
   

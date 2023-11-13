@@ -9,11 +9,11 @@ PROGRAM Australia
    !DECLARATIONS
    INTEGER :: IO, NumeroColonne, NumeroRighe, NODATA_value, Riga=1, NumeroRigheMedia, NumeroColonneMedia
    REAL :: XCorner, YCorner, CellSize, Latitudine
-   CHARACTER :: Trash
-   CHARACTER(LEN=100) :: Format100
-   CHARACTER(LEN=100) :: Format101
-   REAL(KIND=8), ALLOCATABLE, DIMENSION(:) :: VettoreTemperatureMedie(:)
-   REAL(KIND=8), ALLOCATABLE, DIMENSION(:,:) :: MatriceTemperature(:,:), MatriceMedia(:,:), MatriceFiltrata(:,:)
+   CHARACTER(LEN=1) :: Trash
+   CHARACTER(LEN=100) :: Format100, Format101
+   CHARACTER(LEN=10) :: NumeroColonneStringa, NumeroColonneMediaStringa 
+   REAL(KIND=8), ALLOCATABLE, DIMENSION(:) :: VettoreTemperatureMedie
+   REAL(KIND=8), ALLOCATABLE, DIMENSION(:,:) :: MatriceTemperature, MatriceMedia, MatriceFiltrata
    LOGICAL :: ERROR
 
    !---------------------------------------------------------------------------------------------------------------------
@@ -41,7 +41,7 @@ PROGRAM Australia
    NumeroRigheMedia = NumeroRighe/9
    NumeroColonneMedia = NumeroColonne/9
 
-   !ALLOCAZIONE MATRICE
+   !ALLOCAZIONE MATRICI
    ALLOCATE(MatriceTemperature(NumeroRighe,NumeroColonne), VettoreTemperatureMedie(NumeroRighe), STAT=IO)
    IF(IO/=0) STOP 'ERRORE ALLOCAZIONE MATRICE'
    ALLOCATE(MatriceFiltrata(NumeroRighe,NumeroColonne),MatriceMedia(NumeroRigheMedia,NumeroColonneMedia), STAT=IO)
@@ -59,7 +59,7 @@ PROGRAM Australia
    CALL FILTRO(MatriceTemperature, MatriceFiltrata, NumeroRighe, NumeroColonne)
    CALL MEDIA(MatriceTemperature, MatriceMedia, NumeroRighe, NumeroColonne, NumeroRigheMedia, NumeroColonneMedia)
 
-   !CALCOLO MEDIE (IN CASO DI FILE CON NODATAVALUE CICLO ESPLICITO SU COLONNE PER ESCLUDERE I NODATAVALUE DALLA SOMMA)
+   !CALCOLO MEDIE
    DO Riga = 1, NumeroRighe
       VettoreTemperatureMedie(Riga) = SUM(MatriceTemperature(Riga,:))/NumeroColonne
    END DO
@@ -73,12 +73,11 @@ PROGRAM Australia
       WRITE(21,'(F7.3,1X,F7.3)') Latitudine, VettoreTemperatureMedie(Riga)
    END DO
 
-   Format100 = '(886(2X,F7.3))'
-   Format101 = '(98(2X,F7.3))'
-
-   WRITE(*,*) Format100
-   WRITE(*,*) Format101
-
+   !COMPONGO FORMATI COME STRINGHE
+   WRITE(NumeroColonneStringa,'(I0)') NumeroColonne
+   WRITE(NumeroColonneMediaStringa,'(I0)') NumeroColonneMedia
+   Format100 = '(' // TRIM(NumeroColonneStringa) // '(2X,F7.3))'
+   Format101 = '(' // TRIM(NumeroColonneMediaStringa)//'(2X,F7.3))'
 
    !SCRITTURA SU FILE temperature_filtrate
    DO Riga = 1, NumeroRighe
@@ -97,10 +96,6 @@ PROGRAM Australia
    CLOSE(UNIT=21)
    CLOSE(UNIT=22)
    CLOSE(UNIT=23)
-
-   !FORMATI COME STRINGHE
-   !100 FORMAT(886(2X,F7.3))
-   !101 FORMAT(98(2X,F7.3))
 
    !DEALLOCAZIONE MATRICE
    DEALLOCATE(MatriceTemperature)
