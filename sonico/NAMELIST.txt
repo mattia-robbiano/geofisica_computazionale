@@ -1,0 +1,5 @@
+&ANGOLI
+Phi=    90.0
+Theta=  0.0
+Psi=    0.0
+/
