@@ -8,7 +8,7 @@ PROGRAM sonico
     CHARACTER (LEN=200) :: msg
     LOGICAL :: ERROR
     INTEGER :: NumberOfLines, i, IO, Acc1, Acc2, Acc3
-    REAL :: Phi, Theta, Psi, c, 
+    REAL :: Phi, Theta, Psi, c, x, y, z, xRot, yRot, zRot
     NAMELIST / ANGOLI / Phi, Theta, Psi
     
     !RICHIEDO NOMI FILE
@@ -34,17 +34,16 @@ PROGRAM sonico
     !CONTO RIGHE
     CALL SKIP_LINE(20,4, ERROR)
     CALL COUNT_LINES(NumberOfLines, ERROR)
-    !WRITE(*,'(A21,1X,I10)') 'Number of input lines:',NumberOfLines
+    WRITE(*,'(A21,1X,I10)') 'Number of input lines:',NumberOfLines
     REWIND(20)
     CALL SKIP_LINE(20,4, ERROR)
 
     !LEGGO INPUT E RUOTO PRIME TRE COMPONENTI CON VECTOR_ROTATION DI ANGOLI EULERO, POI STAMPO SU FILE
-    DO i=1,NumberOfLines
-        READ(20,*) AngoloEulero, c, Acc1, Acc2, Acc3
-        AngoloEulero = VECTOR_ROTATION(/1,1,1/,/1,1,1/, Phi, Theta, Psi)
-        WRITE(21,*) AngoloEulero
+    DO i=1,5
+        READ(20,*) x,y,z, c, Acc1, Acc2, Acc3
+        CALL VECTOR_ROTATION(x,y,z,xRot,yRot,zRot, Phi, Theta, Psi,.TRUE.)
+        WRITE(21,'(3F10.3,1X,F10.3,1X,3I10)') xRot,yRot,zRot, c, Acc1, Acc2, Acc3
     END DO
-
 
     !CHIUDO FILE
     CLOSE(20)
