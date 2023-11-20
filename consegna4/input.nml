@@ -1,0 +1,6 @@
+&Files
+INPUT_FILENAME1=    'A-pT.dat'
+INPUT_FILENAME2=    'B-pT.dat'
+OUTPUT_FILENAME1=   'A-pT-OUT.dat'
+OUTPUT_FILENAME2=   'B-pT-OUT.dat'
+/

@@ -1,5 +1,5 @@
-&ANGOLI
-Phi=    90.0
-Theta=  0.0
-Psi=    0.0
+&Input
+Phi=    15.0
+Theta=  43.0
+Psi=   189.0
 /

@@ -44,7 +44,7 @@ CONTAINS
       zRot = Output(3)
 
       !Return the rotated vector if VERBOSE
-      IF(PRESENT(VERBOSE)) THEN
+      IF(PRESENT(VERBOSE).AND. VERBOSE) THEN
          !Given Rotation angles in right format:
          WRITE(*,*) 'Rotation Angles'
          WRITE(*,'(3F10.5)') PhiDeg,ThetaDeg,PsiDeg
