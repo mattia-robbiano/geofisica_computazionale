@@ -62,6 +62,12 @@ PROGRAM sonico
     CALL SKIP_LINE(20,4, ERROR)
     DO i=1,NumberOfLines
         READ(20,*) x,y,z, c, Acc
+        !GESTISCO DATI NULLI
+        IF(x>99.0.OR. y>99.0.OR. z>99.0) THEN
+            WRITE(21,*) 99.99,99.99,99.99, c, Acc
+            WRITE(*,'(A,I10)') 'WARNING: x,y,z > 99.0 in line ',i
+            CYCLE
+        END IF
         CALL VECTOR_ROTATION(x,y,z,xRot,yRot,zRot, Angoli%phi, Angoli%theta, Angoli%psi,.FALSE.)
         WRITE(21,*) xRot,yRot,zRot, c, Acc
     END DO

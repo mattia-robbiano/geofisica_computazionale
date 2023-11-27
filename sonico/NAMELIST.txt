@@ -1,5 +1,5 @@
 &Input
-Phi=    15.0
-Theta=  43.0
-Psi=   189.0
+Phi=    33.0
+Theta=  33.0
+Psi=    33.0
 /
