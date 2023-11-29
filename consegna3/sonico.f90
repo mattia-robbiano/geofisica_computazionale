@@ -3,43 +3,42 @@ PROGRAM sonico
     USE MATH
 
     IMPLICIT NONE
+
     TYPE :: AngoliEulero
         REAL :: phi, theta, psi
     END TYPE AngoliEulero
-
-    CHARACTER (LEN=200) :: INPUT_FILENAME
-    CHARACTER (LEN=200) :: OUTPUT_FILENAME
-    CHARACTER (LEN=200) :: msg
+    CHARACTER (LEN=500) :: INPUT
+    CHARACTER (LEN=500) :: OUTPUT
+    CHARACTER (LEN=500) :: msg
     CHARACTER(LEN=1) :: Trash
-    LOGICAL :: ERROR
-    INTEGER :: NumberOfLines,NumberOfAcc, i, IO
     REAL, ALLOCATABLE, DIMENSION(:) :: Acc
     REAL :: Phi, Theta, Psi, c, x, y, z, xRot, yRot, zRot
-    NAMELIST / Input / Phi, Theta, Psi
+    INTEGER :: NumberOfLines,NumberOfAcc, i, IO
+    LOGICAL :: ERROR
     TYPE(AngoliEulero) :: Angoli
+    NAMELIST / Rotazioni / Phi, Theta, Psi
+    NAMELIST / FileNames / INPUT, OUTPUT
     
-    !RICHIEDO NOMI FILE
-    WRITE(*,*) 'Enter input filename'
-    READ(*,*) INPUT_FILENAME
-    WRITE(*,*)
-    WRITE(*,*) 'Enter output filename'
-    READ(*,*) OUTPUT_FILENAME
-    WRITE(*,*)
-
-    !APRO FILE
-    CALL OPEN_INPUT_FILE(20,INPUT_FILENAME,ERROR)
-    IF(ERROR) STOP 'Error opening input file'
-    CALL OPEN_OUTPUT_FILE(21,OUTPUT_FILENAME,ERROR)
-    IF(ERROR) STOP 'Error opening output file'
+    !APRO NAMELIST
     CALL OPEN_INPUT_FILE(22,'NAMELIST.txt',ERROR)
     IF(ERROR) STOP 'Error opening namelist file'
-
-    !LETTURA NAMELIST
-    READ(22,NML=input, IOSTAT=IO, iomsg=msg)
+    !LETTURA ANGOLI
+    READ(22,NML=Rotazioni, IOSTAT=IO, iomsg=msg)
     IF(IO>0) STOP msg
     Angoli%phi = Phi
     Angoli%theta = Theta
     Angoli%psi = Psi
+    !LETTURE FILENAMES
+    READ(22,NML=FileNames, IOSTAT=IO, iomsg=msg)
+    IF(IO>0) STOP msg
+    WRITE(*,*) 'Input file name: ', TRIM(INPUT)
+    WRITE(*,*) 'Output file name: ', TRIM(OUTPUT)
+
+    !APRO FILE
+    CALL OPEN_INPUT_FILE(20,INPUT,ERROR)
+    IF(ERROR) STOP 'Error opening input file'
+    CALL OPEN_OUTPUT_FILE(21,OUTPUT,ERROR)
+    IF(ERROR) STOP 'Error opening output file'
 
     !CONTO RIGHE
     CALL SKIP_LINE(20,4, ERROR)
@@ -54,7 +53,7 @@ PROGRAM sonico
     WRITE(*,'(A31,1X,I1)') "Number of ancillary quantities:", NumberOfAcc
     REWIND(20)
 
-    !ALLOCO ACC
+    !ALLOCO ARRAY GRANDEZZE ACCESSORIE (ACC)
     ALLOCATE(Acc(NumberOfAcc), STAT=IO)
     IF(IO/=0) STOP 'Error allocating Acc'
 

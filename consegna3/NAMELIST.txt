@@ -1,5 +1,10 @@
-&Input
+&Rotazioni
 Phi=    33.0
 Theta=  33.0
 Psi=    33.0
+/
+
+&FileNames
+INPUT=  'sonico_test.dat'
+OUTPUT= 'risultati.txt'
 /
