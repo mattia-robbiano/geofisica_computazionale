@@ -97,8 +97,9 @@ CONTAINS
       END DO
    END SUBROUTINE SKIP_LINE
 
-   SUBROUTINE COUNT_LINES(NumberOfLines, ERROR)
+   SUBROUTINE COUNT_LINES(FILE_UNIT,NumberOfLines, ERROR)
       IMPLICIT NONE
+      INTEGER, INTENT(IN) :: FILE_UNIT
       INTEGER, INTENT(OUT) :: NumberOfLines
       LOGICAL, INTENT(OUT), OPTIONAL :: ERROR
       INTEGER :: IO
@@ -106,7 +107,7 @@ CONTAINS
       ERROR = .FALSE.
       NumberOfLines = 0
       DO
-         READ(20,*,IOSTAT=IO)
+         READ(FILE_UNIT,*,IOSTAT=IO)
          IF (IO==0)THEN
             NumberOfLines=NumberOfLines+1
          ELSE IF(IO>0)THEN

@@ -20,7 +20,7 @@ PROGRAM sonico
     NAMELIST / FileNames / INPUT, OUTPUT
     
     !APRO NAMELIST
-    CALL OPEN_INPUT_FILE(22,'NAMELIST.txt',ERROR)
+    CALL OPEN_INPUT_FILE(22,'NAMELIST.nml',ERROR)
     IF(ERROR) STOP 'Error opening namelist file'
     !LETTURA ANGOLI
     READ(22,NML=Rotazioni, IOSTAT=IO, iomsg=msg)
@@ -42,7 +42,7 @@ PROGRAM sonico
 
     !CONTO RIGHE
     CALL SKIP_LINE(20,4, ERROR)
-    CALL COUNT_LINES(NumberOfLines, ERROR)
+    CALL COUNT_LINES(20,NumberOfLines, ERROR)
     WRITE(*,'(A22,1X,I10)') 'Number of input lines:',NumberOfLines
     REWIND(20)
 
