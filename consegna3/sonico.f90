@@ -13,6 +13,7 @@ PROGRAM sonico
     CHARACTER(LEN=1) :: Trash
     REAL, ALLOCATABLE, DIMENSION(:) :: Acc
     REAL :: Phi, Theta, Psi, c, x, y, z, xRot, yRot, zRot
+    REAL, PARAMETER :: null = 99.0
     INTEGER :: NumberOfLines,NumberOfAcc, i, IO
     LOGICAL :: ERROR
     TYPE(AngoliEulero) :: Angoli
@@ -62,9 +63,9 @@ PROGRAM sonico
     DO i=1,NumberOfLines
         READ(20,*) x,y,z, c, Acc
         !GESTISCO DATI NULLI
-        IF(x>99.0.OR. y>99.0.OR. z>99.0) THEN
-            WRITE(21,*) 99.99,99.99,99.99, c, Acc
-            WRITE(*,'(A,I10)') 'WARNING: x,y,z > 99.0 in line ',i
+        IF(x>abs(null).OR. y>abs(null).OR. z>abs(null)) THEN
+            WRITE(21,*) null,null,null, c, Acc
+            WRITE(*,'(A,I10)') 'WARNING: null data in line:  ',i
             CYCLE
         END IF
         CALL VECTOR_ROTATION(x,y,z,xRot,yRot,zRot, Angoli%phi, Angoli%theta, Angoli%psi,.FALSE.)

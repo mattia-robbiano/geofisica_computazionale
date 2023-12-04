@@ -5,6 +5,6 @@ Psi=    33.0
 /
 
 &FileNames
-INPUT=  'sonico_test.dat'
-OUTPUT= 'risultati.txt'
+INPUT=  'dati_test.dat'
+OUTPUT= 'output.dat'
 /

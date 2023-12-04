@@ -61,8 +61,7 @@ CONTAINS
             ERROR = .TRUE.
          END IF
       ELSE
-         ! File does not exist; open it for writing
-         OPEN(UNIT=FILE_UNIT, FILE=FILE_NAME, STATUS='UNKNOWN', ACTION='WRITE', IOSTAT=IO)
+         OPEN(UNIT=FILE_UNIT, FILE=FILE_NAME, STATUS='NEW', ACTION='WRITE', IOSTAT=IO)
          IF (IO /= 0) THEN
             WRITE(*,101) 'Error opening file: ', TRIM(FILE_NAME)
             ERROR = .TRUE.

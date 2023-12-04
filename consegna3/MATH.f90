@@ -6,6 +6,7 @@ CONTAINS
       REAL, INTENT(IN) :: AngleDeg
       REAL, INTENT(OUT) :: Radians
       REAL, PARAMETER :: PI = 3.14159265358979323846
+
       Radians = (REAL(INT(AngleDeg))*PI/180)+(AngleDeg-REAL(INT(AngleDeg)))
    END SUBROUTINE SEXA2RAD
 
@@ -18,6 +19,7 @@ CONTAINS
       REAL :: Phi,Theta,Psi
       REAL, DIMENSION(3) :: Input,Output
       REAL, DIMENSION(3,3) :: RotationMatrix
+
       !CONVERTO INPUT IN UN ARRAY
       Input(1) = x
       Input(2) = y
