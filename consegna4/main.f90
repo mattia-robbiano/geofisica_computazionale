@@ -1,14 +1,22 @@
 PROGRAM MAIN
     USE IOSTREAM
-    USE PROCESSING
+    USE RadioSondaggi
     IMPLICIT NONE
-    REAL(KIND=8) :: h0A, p0A, T0A, h0B, p0B, T0B, z1, z2, p1, p2, T1, T2
+
     CHARACTER (LEN=500) :: INPUT_FILENAME_A, INPUT_FILENAME_B, OUTPUT_FILENAME_A, OUTPUT_FILENAME_B
+    NAMELIST /Files/ INPUT_FILENAME_A, INPUT_FILENAME_B, OUTPUT_FILENAME_A, OUTPUT_FILENAME_B
     CHARACTER (LEN=500) :: INTESTAZIONE_A, INTESTAZIONE_B
     CHARACTER (LEN=500) :: msg
     LOGICAL :: ERROR
     INTEGER :: IO, i, NumberOfLinesA, NumberOfLinesB, position1, position2, position3
-    NAMELIST /Files/ INPUT_FILENAME_A, INPUT_FILENAME_B, OUTPUT_FILENAME_A, OUTPUT_FILENAME_B
+    REAL :: h0A, p0A, T0A, h0B, p0B, T0B
+    !----------------------------------------
+    !VARIABILI ES1
+    REAL :: z1, z2, p1, p2, T1, T2
+    !----------------------------------------
+    !VARIBILI ES2
+    REAL, ALLOCATABLE :: DataA(:,:), DataB(:,:)
+    REAL :: zMax
 
     !LETTURA NAMELIST
     OPEN(UNIT=20, FILE='input.nml', STATUS='OLD', ACTION='READ', IOSTAT=IO, iomsg=msg)
@@ -62,13 +70,15 @@ PROGRAM MAIN
     WRITE(*,'(A19,A10)') 'Dati file stazione: ', TRIM(INPUT_FILENAME_B)
     WRITE(*,'(3(A5,F7.1))') 'h0 =', h0B, ' p0 =', p0B, ' T0 =', T0B
 
+    !----------------------------------------
+
     !IMPOSTO DATI INIZIALI, LEGGO DATI E SCRIVO SU FILE
     p1 = p0A
     T1 = T0A
     z1 = h0A
     DO i=1,NumberOfLinesA-1
         READ(21,*) p2, T2
-        CALL BarometricFormula(z2, z1, p2, p1, T2, T1)
+        CALL GetAltitude(z2, z1, p2, p1, T2, T1)
         WRITE(23,'(F10.2,1X,F10.2,1X,F10.2)') z2, p2, T2
         p1 = p2
         T1 = T2
@@ -80,17 +90,58 @@ PROGRAM MAIN
     z1 = h0B
     DO i=1,NumberOfLinesB-1
         READ(22,*) p2, T2
-        CALL BarometricFormula(z2, z1, p2, p1, T2, T1)
+        CALL GetAltitude(z2, z1, p2, p1, T2, T1)
         WRITE(24,'(F10.2,1X,F10.2,1X,F10.2)') z2, p2, T2
         p1 = p2
         T1 = T2
         z1 = z2
     END DO
 
-    !CHIUDO I FILE
     CLOSE(21)
     CLOSE(22)
     CLOSE(23)
     CLOSE(24)
+    !----------------------------------------
+    !APERTURA FILE
+    CALL OPEN_INPUT_FILE(25, OUTPUT_FILENAME_A, ERROR)
+    IF(ERROR) STOP 'ERROR OPENING OUTPUT FILE A'
+    CALL OPEN_INPUT_FILE(26, OUTPUT_FILENAME_B, ERROR)
+    IF(ERROR) STOP 'ERROR OPENING OUTPUT FILE B'
+    CALL OPEN_OUTPUT_FILE(27, 'gridA.txt', ERROR)
+    IF(ERROR) STOP 'ERROR OPENING OUTPUT FILE A'
 
+    !RIEMPO DataA e DataB
+    ALLOCATE(DataA(NumberOfLinesA,3))
+    ALLOCATE(DataB(NumberOfLinesB,3))
+    DO i=1,NumberOfLinesA-1
+        READ(25,*) DataA(i,1), DataA(i,2), DataA(i,3)
+    END DO
+    DO i=1,NumberOfLinesB-1
+        READ(26,*) DataB(i,1), DataB(i,2), DataB(i,3)
+    END DO
+
+    !Calcolo estremi dati sperimentali
+    IF(DataA(1,1)<=DataB(1,1)) THEN
+        z1 = DataB(1,1)
+    ELSE
+        z1 = DataA(1,1)
+    END IF
+    IF(DataA(NumberOfLinesA-1,1)>=DataB(NumberOfLinesB-1,1)) THEN
+        zMax = DataB(NumberOfLinesB-1,1)
+    ELSE
+        zMax = DataA(NumberOfLinesA-1,1)
+    END IF
+
+    !Calcolo estremo inferiore griglia
+    IF(abs(MOD(z1,200.0)-0.0)>0.000001) THEN
+        z2 = z1 - MOD(z1,200.0) + 200.0
+    ELSE
+        z2 = z1 + 200
+    END IF
+
+    !Cerco temperatura strato nelle misure A
+    write(*,*) z1,z2,p1,T1
+
+    CLOSE(25)
+    CLOSE(26)
 END PROGRAM MAIN
