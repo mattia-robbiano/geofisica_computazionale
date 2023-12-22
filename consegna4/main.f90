@@ -1,12 +1,13 @@
 PROGRAM MAIN
     USE IOSTREAM
+    USE PROCESSING
     IMPLICIT NONE
-    REAL :: h0A, p0A, T0A, h0B, p0B, T0B
+    REAL(KIND=8) :: h0A, p0A, T0A, h0B, p0B, T0B, z1, z2, p1, p2, T1, T2
     CHARACTER (LEN=500) :: INPUT_FILENAME_A, INPUT_FILENAME_B, OUTPUT_FILENAME_A, OUTPUT_FILENAME_B
     CHARACTER (LEN=500) :: INTESTAZIONE_A, INTESTAZIONE_B
     CHARACTER (LEN=500) :: msg
     LOGICAL :: ERROR
-    INTEGER :: IO, NumberOfLinesA, NumberOfLinesB, position1, position2, position3
+    INTEGER :: IO, i, NumberOfLinesA, NumberOfLinesB, position1, position2, position3
     NAMELIST /Files/ INPUT_FILENAME_A, INPUT_FILENAME_B, OUTPUT_FILENAME_A, OUTPUT_FILENAME_B
 
     !LETTURA NAMELIST
@@ -47,7 +48,7 @@ PROGRAM MAIN
     READ(INTESTAZIONE_A(position1+3:position2-1),*) h0A
     READ(INTESTAZIONE_A(position2+3:position3-1),*) p0A
     READ(INTESTAZIONE_A(position3+3:LEN_TRIM(INTESTAZIONE_A)),*) T0A
-    
+
     position1 = INDEX(INTESTAZIONE_B, 'h0')
     position2 = INDEX(INTESTAZIONE_B, 'p0')
     position3 = INDEX(INTESTAZIONE_B, 'T0')
@@ -60,6 +61,31 @@ PROGRAM MAIN
     WRITE(*,'(3(A5,F7.1))') 'h0 =', h0A, ' p0 =', p0A, ' T0 =', T0A
     WRITE(*,'(A19,A10)') 'Dati file stazione: ', TRIM(INPUT_FILENAME_B)
     WRITE(*,'(3(A5,F7.1))') 'h0 =', h0B, ' p0 =', p0B, ' T0 =', T0B
+
+    !IMPOSTO DATI INIZIALI, LEGGO DATI E SCRIVO SU FILE
+    p1 = p0A
+    T1 = T0A
+    z1 = h0A
+    DO i=1,NumberOfLinesA-1
+        READ(21,*) p2, T2
+        CALL BarometricFormula(z2, z1, p2, p1, T2, T1)
+        WRITE(23,'(F10.2,1X,F10.2,1X,F10.2)') z2, p2, T2
+        p1 = p2
+        T1 = T2
+        z1 = z2
+    END DO
+
+    p1 = p0B
+    T1 = T0B
+    z1 = h0B
+    DO i=1,NumberOfLinesB-1
+        READ(22,*) p2, T2
+        CALL BarometricFormula(z2, z1, p2, p1, T2, T1)
+        WRITE(24,'(F10.2,1X,F10.2,1X,F10.2)') z2, p2, T2
+        p1 = p2
+        T1 = T2
+        z1 = z2
+    END DO
 
     !CHIUDO I FILE
     CLOSE(21)
