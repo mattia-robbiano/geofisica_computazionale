@@ -13,16 +13,16 @@ CONTAINS
 
       IF (.NOT. iexist) THEN
          ! File does not exist
-         WRITE(*, 101) 'Error: file not found: ', TRIM(FILE_NAME)
+         WRITE(*, 101) 'Error: file not found: ', FILE_NAME
          ERROR = .TRUE.
       ELSE
          ! File exists, open it
          OPEN(UNIT=FILE_UNIT, FILE=FILE_NAME, STATUS='OLD', ACTION='READ', IOSTAT=IO)
          IF (IO /= 0) THEN
-            WRITE(*,101) 'Error opening file ', TRIM(FILE_NAME)
+            WRITE(*,101) 'Error opening file ', FILE_NAME
             ERROR = .TRUE.
          ELSE
-            WRITE(*,101) 'File opened successfully: ', TRIM(FILE_NAME)
+            WRITE(*,101) 'File opened successfully: ', FILE_NAME
             ERROR = .FALSE.
          END IF
       END IF
@@ -43,31 +43,31 @@ CONTAINS
 
       IF (iexist) THEN
          ! File exists; ask the user if they want to replace it
-         WRITE(*,101) 'File already exists: ', TRIM(FILE_NAME)
+         WRITE(*,101) 'File already exists: ', FILE_NAME
          WRITE(*,*) 'Do you want to replace it? (Y/N)'
          READ(*,*) response
 
          IF (response == 'Y' .OR. response == 'y') THEN
             OPEN(UNIT=FILE_UNIT, FILE=FILE_NAME, STATUS='REPLACE', ACTION='WRITE', IOSTAT=IO)
             IF (IO /= 0) THEN
-               WRITE(*,*) 'Error opening file: ', TRIM(FILE_NAME)
+               WRITE(*,*) 'Error opening file: ', FILE_NAME
                ERROR = .TRUE.
             ELSE
-               WRITE(*,101) 'File replaced and opened sucessfully: ', TRIM(FILE_NAME)
+               WRITE(*,101) 'File replaced and opened sucessfully: ', FILE_NAME
                ERROR = .FALSE.
             END IF
          ELSE
-            WRITE(*,101) 'User chose not to replace the file: ', TRIM(FILE_NAME)
+            WRITE(*,101) 'User chose not to replace the file: ', FILE_NAME
             ERROR = .TRUE.
          END IF
       ELSE
          ! File does not exist; open it for writing
          OPEN(UNIT=FILE_UNIT, FILE=FILE_NAME, STATUS='UNKNOWN', ACTION='WRITE', IOSTAT=IO)
          IF (IO /= 0) THEN
-            WRITE(*,101) 'Error opening file: ', TRIM(FILE_NAME)
+            WRITE(*,101) 'Error opening file: ', FILE_NAME
             ERROR = .TRUE.
          ELSE
-            WRITE(*,101) 'File created and opened sucessfully: ', (FILE_NAME)
+            WRITE(*,101) 'File created and opened sucessfully: ', FILE_NAME
             ERROR = .FALSE.
          END IF
       END IF
