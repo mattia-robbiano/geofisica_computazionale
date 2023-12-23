@@ -8,15 +8,18 @@ PROGRAM MAIN
     CHARACTER (LEN=500) :: INTESTAZIONE_A, INTESTAZIONE_B
     CHARACTER (LEN=500) :: msg
     LOGICAL :: ERROR
-    INTEGER :: IO, i, NumberOfLinesA, NumberOfLinesB, position1, position2, position3
+    INTEGER :: IO, i,j, NumberOfLinesA, NumberOfLinesB, position1, position2, position3
     REAL :: h0A, p0A, T0A, h0B, p0B, T0B
     !----------------------------------------
     !VARIABILI ES1
     REAL :: z1, z2, p1, p2, T1, T2
     !----------------------------------------
     !VARIBILI ES2
-    REAL, ALLOCATABLE :: DataA(:,:), DataB(:,:)
-    REAL :: zMax
+    REAL, ALLOCATABLE :: DataA(:,:), DataB(:,:), GridA(:,:), GridB(:,:)
+    REAL :: zMax, zMin, zGridBase, zGridTop
+    INTEGER :: NumberOfGridPoints
+    REAL :: z1A, z2A, p1A, p2A, T1A, T2A
+    REAL :: z1B, z2B, p1B, p2B, T1B, T2B
 
     !LETTURA NAMELIST
     OPEN(UNIT=20, FILE='input.nml', STATUS='OLD', ACTION='READ', IOSTAT=IO, iomsg=msg)
@@ -101,7 +104,8 @@ PROGRAM MAIN
     CLOSE(22)
     CLOSE(23)
     CLOSE(24)
-    !----------------------------------------
+
+    !----------------------------------------    
     !APERTURA FILE
     CALL OPEN_INPUT_FILE(25, OUTPUT_FILENAME_A, ERROR)
     IF(ERROR) STOP 'ERROR OPENING OUTPUT FILE A'
@@ -109,10 +113,15 @@ PROGRAM MAIN
     IF(ERROR) STOP 'ERROR OPENING OUTPUT FILE B'
     CALL OPEN_OUTPUT_FILE(27, 'gridA.txt', ERROR)
     IF(ERROR) STOP 'ERROR OPENING OUTPUT FILE A'
+    CALL OPEN_OUTPUT_FILE(28, 'gridB.txt', ERROR)
+    IF(ERROR) STOP 'ERROR OPENING OUTPUT FILE A'
+    CALL OPEN_OUTPUT_FILE(29, 'gridDifference.txt', ERROR)
+    IF(ERROR) STOP 'ERROR OPENING OUTPUT FILE A'
 
     !RIEMPO DataA e DataB
     ALLOCATE(DataA(NumberOfLinesA,3))
     ALLOCATE(DataB(NumberOfLinesB,3))
+
     DO i=1,NumberOfLinesA-1
         READ(25,*) DataA(i,1), DataA(i,2), DataA(i,3)
     END DO
@@ -120,11 +129,12 @@ PROGRAM MAIN
         READ(26,*) DataB(i,1), DataB(i,2), DataB(i,3)
     END DO
 
+    !----------------------------------------
     !Calcolo estremi dati sperimentali
     IF(DataA(1,1)<=DataB(1,1)) THEN
-        z1 = DataB(1,1)
+        zMin = DataB(1,1)
     ELSE
-        z1 = DataA(1,1)
+        zMin = DataA(1,1)
     END IF
     IF(DataA(NumberOfLinesA-1,1)>=DataB(NumberOfLinesB-1,1)) THEN
         zMax = DataB(NumberOfLinesB-1,1)
@@ -133,15 +143,131 @@ PROGRAM MAIN
     END IF
 
     !Calcolo estremo inferiore griglia
-    IF(abs(MOD(z1,200.0)-0.0)>0.000001) THEN
-        z2 = z1 - MOD(z1,200.0) + 200.0
+    IF(abs(MOD(zMin,200.0)-0.0)>0.000001) THEN
+        zGridBase = zMin - MOD(zMin,200.0) + 200.0
     ELSE
-        z2 = z1 + 200
+        zGridBase = zMin + 200
+    END IF
+    !Calcolo estremo superiore griglia zGridTop
+    IF(abs(MOD(zMax,200.0)-0.0)>0.000001) THEN
+        zGridTop = zMax - MOD(zMax,200.0)
+    ELSE
+        zGridTop = zMax
+    END IF
+    !Calcolo numero di punti griglia e alloco GridA e GridB
+    NumberOfGridPoints = int(zGridTop - zGridBase)/200 + 1
+    ALLOCATE(GridA(NumberOfGridPoints,3))
+    ALLOCATE(GridB(NumberOfGridPoints,3))
+
+    !----------------------------------------
+    !Processing dati A
+
+    !Cerco nel DataSet A il dato a quota massima inferiore a zGridBase e lo prendo come primo dato
+    IF(zGridBase<DataA(1,1)) THEN
+        T1A = T0A
+        p1A = p0A
+        z1A = h0A
+        i  = 1
+    ELSE 
+        DO i=2,NumberOfLinesA-1
+            IF(zGridBase<=DataA(i,1)) THEN
+                T1A = DataA(i-1,3)
+                p1A = DataA(i-1,2)
+                z1A = DataA(i-1,1)
+                EXIT
+            END IF
+        END DO
     END IF
 
-    !Cerco temperatura strato nelle misure A
-    write(*,*) z1,z2,p1,T1
+    !Calcolo valori grandezze a zGridBase assegnando alla temperatura la media del substrato
+    ! e calcolando la pressione con la formula barometrica
+    z2A = zGridBase
+    T2A = (T1A + DataA(i,3))/2
+    CALL GetPressure(p2A,z2A,z1A,p1A,T2A,T1A)
+    
+    GridA(1,1) = z2A
+    GridA(1,2) = p2A
+    GridA(1,3) = T2A
 
+    !----------------------------------------
+    !Processing dati B
+    !Cerco nel DataSet B il dato a quota massima inferiore a zGridBase
+    IF(zGridBase<DataB(1,1)) THEN
+        T1B = T0B
+        p1B = p0B
+        z1B = h0B
+        i  = 1
+    ELSE 
+        DO i=2,NumberOfLinesB-1
+            IF(zGridBase<=DataB(i,1)) THEN
+                T1B = DataB(i-1,3)
+                p1B = DataB(i-1,2)
+                z1B = DataB(i-1,1)
+                EXIT
+            END IF
+        END DO
+    END IF
+    !Calcolo valori grandezze a zGridBase assegnando alla temperatura la media del substrato
+    ! e calcolando la pressione con la formula barometrica
+    z2B = zGridBase
+    T2B = (T1B + DataB(i,3))/2
+    CALL GetPressure(p2B,z2B,z1B,p1B,T2B,T1B)
+    
+    GridB(1,1) = z2B
+    GridB(1,2) = p2B
+    GridB(1,3) = T2B
+
+    !----------------------------------------
+        DO i=1,NumberOfGridPoints-1
+        z1A = GridA(i,1)
+        p1A = GridA(i,2)
+        T1A = GridA(i,3)
+        z1B = GridB(i,1)
+        p1B = GridB(i,2)
+        T1B = GridB(i,3)
+
+        z2A = z1A + 200
+        z2B = z1B + 200
+        DO j = 1,NumberOfLinesA
+            IF(z2A<=DataA(j,1)) THEN
+                T2A = (DataA(j,3)+DataA(j-1,3))/2
+                EXIT
+            END IF
+        END DO
+        DO j = 1,NumberOfLinesB
+            IF(z2B<=DataB(j,1)) THEN
+                T2B = (DataB(j,3)+DataB(j-1,3))/2
+                EXIT
+            END IF
+        END DO
+        CALL GetPressure(p2A,z2A,z1A,p1A,T2A,T1A)
+        CALL GetPressure(p2B,z2B,z1B,p1B,T2B,T1B)
+
+        GridA(i+1,1) = z2A
+        GridA(i+1,2) = p2A
+        GridA(i+1,3) = T2A
+        GridB(i+1,1) = z2B
+        GridB(i+1,2) = p2B
+        GridB(i+1,3) = T2B
+    END DO
+
+    !----------------------------------------
+    !Scrivo risultati
+
+    DO i=1,NumberOfGridPoints
+        WRITE(27,'(F10.2,1X,F10.2,1X,F10.2)') GridA(i,1), GridA(i,2), GridA(i,3)
+    END DO
+    DO i=1,NumberOfGridPoints
+        WRITE(28,'(F10.2,1X,F10.2,1X,F10.2)') GridB(i,1), GridB(i,2), GridB(i,3)
+    END DO
+    DO i=1,NumberOfGridPoints
+        WRITE(29,'(F10.2,1X,F10.2)') GridA(i,1), GridA(i,2)-GridB(i,2)
+    END DO
+    
     CLOSE(25)
     CLOSE(26)
+    CLOSE(27)
+    CLOSE(28)
+    CLOSE(29)
+
 END PROGRAM MAIN
