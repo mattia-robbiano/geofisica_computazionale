@@ -3,4 +3,5 @@ INPUT_FILENAME_A=   'A-pT.dat'
 INPUT_FILENAME_B=   'B-pT.dat'
 OUTPUT_FILENAME_A=  'A-zpT.dat'
 OUTPUT_FILENAME_B=  'B-zpT.dat'
+OUTPUT_FILENAME_DIFF=   'diff.dat'
 /

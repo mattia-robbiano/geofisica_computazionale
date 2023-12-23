@@ -3,16 +3,18 @@ PROGRAM MAIN
     USE RadioSondaggi
     IMPLICIT NONE
 
-    CHARACTER (LEN=500) :: INPUT_FILENAME_A, INPUT_FILENAME_B, OUTPUT_FILENAME_A, OUTPUT_FILENAME_B
-    NAMELIST /Files/ INPUT_FILENAME_A, INPUT_FILENAME_B, OUTPUT_FILENAME_A, OUTPUT_FILENAME_B
+    CHARACTER (LEN=500) :: INPUT_FILENAME_A, INPUT_FILENAME_B, OUTPUT_FILENAME_A, OUTPUT_FILENAME_B, OUTPUT_FILENAME_DIFF
+    NAMELIST /Files/ INPUT_FILENAME_A, INPUT_FILENAME_B, OUTPUT_FILENAME_A, OUTPUT_FILENAME_B, OUTPUT_FILENAME_DIFF
     CHARACTER (LEN=500) :: INTESTAZIONE_A, INTESTAZIONE_B
     CHARACTER (LEN=500) :: msg
     LOGICAL :: ERROR
     INTEGER :: IO, i,j, NumberOfLinesA, NumberOfLinesB, position1, position2, position3
     REAL :: h0A, p0A, T0A, h0B, p0B, T0B
+
     !----------------------------------------
     !VARIABILI ES1
     REAL :: z1, z2, p1, p2, T1, T2
+
     !----------------------------------------
     !VARIBILI ES2
     REAL, ALLOCATABLE :: DataA(:,:), DataB(:,:), GridA(:,:), GridB(:,:)
@@ -75,10 +77,12 @@ PROGRAM MAIN
 
     !----------------------------------------
 
-    !IMPOSTO DATI INIZIALI, LEGGO DATI E SCRIVO SU FILE
+    !Noti i dati al suolo, leggo i dati di pressione e temperatura e calcolo l'altitudine con la formula barometrica
+    ! e scrivo su file le triplette (z,p,T)
     p1 = p0A
     T1 = T0A
     z1 = h0A
+
     DO i=1,NumberOfLinesA-1
         READ(21,*) p2, T2
         CALL GetAltitude(z2, z1, p2, p1, T2, T1)
@@ -111,11 +115,7 @@ PROGRAM MAIN
     IF(ERROR) STOP 'ERROR OPENING OUTPUT FILE A'
     CALL OPEN_INPUT_FILE(26, OUTPUT_FILENAME_B, ERROR)
     IF(ERROR) STOP 'ERROR OPENING OUTPUT FILE B'
-    CALL OPEN_OUTPUT_FILE(27, 'gridA.txt', ERROR)
-    IF(ERROR) STOP 'ERROR OPENING OUTPUT FILE A'
-    CALL OPEN_OUTPUT_FILE(28, 'gridB.txt', ERROR)
-    IF(ERROR) STOP 'ERROR OPENING OUTPUT FILE A'
-    CALL OPEN_OUTPUT_FILE(29, 'gridDifference.txt', ERROR)
+    CALL OPEN_OUTPUT_FILE(29, OUTPUT_FILENAME_DIFF, ERROR)
     IF(ERROR) STOP 'ERROR OPENING OUTPUT FILE A'
 
     !RIEMPO DataA e DataB
@@ -255,14 +255,13 @@ PROGRAM MAIN
     !Scrivo risultati
 
     DO i=1,NumberOfGridPoints
-        WRITE(27,'(F10.2,1X,F10.2,1X,F10.2)') GridA(i,1), GridA(i,2), GridA(i,3)
-    END DO
-    DO i=1,NumberOfGridPoints
-        WRITE(28,'(F10.2,1X,F10.2,1X,F10.2)') GridB(i,1), GridB(i,2), GridB(i,3)
-    END DO
-    DO i=1,NumberOfGridPoints
         WRITE(29,'(F10.2,1X,F10.2)') GridA(i,1), GridA(i,2)-GridB(i,2)
     END DO
+
+    DEALLOCATE(DataA)
+    DEALLOCATE(DataB)
+    DEALLOCATE(GridA)
+    DEALLOCATE(GridB)
     
     CLOSE(25)
     CLOSE(26)
