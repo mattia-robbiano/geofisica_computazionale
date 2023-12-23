@@ -1,6 +1,9 @@
 MODULE IOSTREAM
 CONTAINS
-   SUBROUTINE OPEN_INPUT_FILE(FILE_UNIT, FILE_NAME, ERROR)
+
+   !Controlla l’apertura di file di output tenendo conto dei vari casi di pre-esistenza dei file
+   ! ed errori.   
+SUBROUTINE OPEN_INPUT_FILE(FILE_UNIT, FILE_NAME, ERROR)
       IMPLICIT NONE
       INTEGER, INTENT(IN) :: FILE_UNIT
       CHARACTER(LEN=*), INTENT(IN) :: FILE_NAME
@@ -29,6 +32,8 @@ CONTAINS
       101   FORMAT(A, 1X, A)
    END SUBROUTINE OPEN_INPUT_FILE
 
+   !Controlla l’apertura di file di output tenendo conto dei vari casi di pre-esistenza dei file
+   ! ed errori.
    SUBROUTINE OPEN_OUTPUT_FILE(FILE_UNIT, FILE_NAME, ERROR)
       IMPLICIT NONE
       INTEGER, INTENT(IN) :: FILE_UNIT
@@ -74,6 +79,7 @@ CONTAINS
       101   FORMAT(A, 1X, A)
    END SUBROUTINE OPEN_OUTPUT_FILE
 
+   !Avanza di NumberOfLines righe in un file in lettura fornito
    SUBROUTINE SKIP_LINE(FILE_UNIT,NumberOfLines, ERROR)
       IMPLICIT NONE
       INTEGER, INTENT(IN) :: NumberOfLines
@@ -97,6 +103,7 @@ CONTAINS
       END DO
    END SUBROUTINE SKIP_LINE
 
+   !Conta righe di un file in lettura
    SUBROUTINE COUNT_LINES(FILE_UNIT,NumberOfLines, ERROR)
       IMPLICIT NONE
       INTEGER, INTENT(IN) :: FILE_UNIT

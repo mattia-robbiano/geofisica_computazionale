@@ -9,19 +9,17 @@ PROGRAM MAIN
     CHARACTER (LEN=500) :: msg
     LOGICAL :: ERROR
     INTEGER :: IO, i,j, NumberOfLinesA, NumberOfLinesB, position1, position2, position3
-    REAL :: h0A, p0A, T0A, h0B, p0B, T0B
-
+    REAL :: h0A, p0A, T0A, h0B, p0B, T0B    !Dati altezza, pressione e temperatura al suolo
     !----------------------------------------
     !VARIABILI ES1
-    REAL :: z1, z2, p1, p2, T1, T2
-
+    REAL :: z1, z2, p1, p2, T1, T2          !Variabili per processing dati
     !----------------------------------------
     !VARIBILI ES2
-    REAL, ALLOCATABLE :: DataA(:,:), DataB(:,:), GridA(:,:), GridB(:,:)
-    REAL :: zMax, zMin, zGridBase, zGridTop
-    INTEGER :: NumberOfGridPoints
-    REAL :: z1A, z2A, p1A, p2A, T1A, T2A
-    REAL :: z1B, z2B, p1B, p2B, T1B, T2B
+    REAL, ALLOCATABLE, DIMENSION(:,:) :: DataA, DataB, GridA, GridB
+    REAL :: zMax, zMin, zGridBase, zGridTop !Estremi dati sperimentali e griglia
+    INTEGER :: NumberOfGridPoints 
+    REAL :: z1A, z2A, p1A, p2A, T1A, T2A    !Variabili per processing dati A
+    REAL :: z1B, z2B, p1B, p2B, T1B, T2B    !Variabili per processing dati B
 
     !LETTURA NAMELIST
     OPEN(UNIT=20, FILE='input.nml', STATUS='OLD', ACTION='READ', IOSTAT=IO, iomsg=msg)
@@ -41,11 +39,11 @@ PROGRAM MAIN
 
     !CONTO RIGHE E CONTROLLO INTEGRITA'
     CALL COUNT_LINES(21, NumberOfLinesA, ERROR)
-    IF(ERROR) STOP 'ERROR COUNTING LINES IN INPUT FILE A'
+    IF(ERROR) STOP 'ERROR READING INPUT FILE A'
     REWIND(21)
 
     CALL COUNT_LINES(22, NumberOfLinesB, ERROR)
-    IF(ERROR) STOP 'ERROR COUNTING LINES IN INPUT FILE B'
+    IF(ERROR) STOP 'ERROR READING INPUT FILE B'
     REWIND(22)
 
     !LEGGO INTESTAZIONE
@@ -76,6 +74,11 @@ PROGRAM MAIN
     WRITE(*,'(3(A5,F7.1))') 'h0 =', h0B, ' p0 =', p0B, ' T0 =', T0B
 
     !----------------------------------------
+    !ESERCIZIO 1
+
+    !Scrivo intestazione file
+    WRITE(23,'(A)') INTESTAZIONE_A
+    WRITE(24,'(A)') INTESTAZIONE_B
 
     !Noti i dati al suolo, leggo i dati di pressione e temperatura e calcolo l'altitudine con la formula barometrica
     ! e scrivo su file le triplette (z,p,T)
@@ -109,7 +112,9 @@ PROGRAM MAIN
     CLOSE(23)
     CLOSE(24)
 
-    !----------------------------------------    
+    !----------------------------------------
+    !ESERCIZIO 2
+
     !APERTURA FILE
     CALL OPEN_INPUT_FILE(25, OUTPUT_FILENAME_A, ERROR)
     IF(ERROR) STOP 'ERROR OPENING OUTPUT FILE A'
@@ -117,6 +122,9 @@ PROGRAM MAIN
     IF(ERROR) STOP 'ERROR OPENING OUTPUT FILE B'
     CALL OPEN_OUTPUT_FILE(29, OUTPUT_FILENAME_DIFF, ERROR)
     IF(ERROR) STOP 'ERROR OPENING OUTPUT FILE A'
+
+    READ(25,*) 
+    READ(26,*) 
 
     !RIEMPO DataA e DataB
     ALLOCATE(DataA(NumberOfLinesA,3))
@@ -129,7 +137,6 @@ PROGRAM MAIN
         READ(26,*) DataB(i,1), DataB(i,2), DataB(i,3)
     END DO
 
-    !----------------------------------------
     !Calcolo estremi dati sperimentali
     IF(DataA(1,1)<=DataB(1,1)) THEN
         zMin = DataB(1,1)
@@ -159,8 +166,6 @@ PROGRAM MAIN
     ALLOCATE(GridA(NumberOfGridPoints,3))
     ALLOCATE(GridB(NumberOfGridPoints,3))
 
-    !----------------------------------------
-    !Processing dati A
 
     !Cerco nel DataSet A il dato a quota massima inferiore a zGridBase e lo prendo come primo dato
     IF(zGridBase<DataA(1,1)) THEN
@@ -189,8 +194,6 @@ PROGRAM MAIN
     GridA(1,2) = p2A
     GridA(1,3) = T2A
 
-    !----------------------------------------
-    !Processing dati B
     !Cerco nel DataSet B il dato a quota massima inferiore a zGridBase
     IF(zGridBase<DataB(1,1)) THEN
         T1B = T0B
@@ -217,7 +220,8 @@ PROGRAM MAIN
     GridB(1,2) = p2B
     GridB(1,3) = T2B
 
-    !----------------------------------------
+    !Calcolo i restanti punti della griglia
+
         DO i=1,NumberOfGridPoints-1
         z1A = GridA(i,1)
         p1A = GridA(i,2)
@@ -251,12 +255,13 @@ PROGRAM MAIN
         GridB(i+1,3) = T2B
     END DO
 
-    !----------------------------------------
     !Scrivo risultati
 
     DO i=1,NumberOfGridPoints
         WRITE(29,'(F10.2,1X,F10.2)') GridA(i,1), GridA(i,2)-GridB(i,2)
     END DO
+
+    !Dealloco variabili e chiudo file
 
     DEALLOCATE(DataA)
     DEALLOCATE(DataB)
